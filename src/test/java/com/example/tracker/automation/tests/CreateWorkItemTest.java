@@ -21,7 +21,7 @@ class CreateWorkItemTest extends BaseUiTest {
         // until the element appears (or a timeout is hit) instead of failing
         // on the first check, which is what makes these tests resist flake.
         assertThat(tracker.rowWithTitle(title)).isVisible();
-        assertThat(tracker.rowWithTitle(title).locator(".badge")).hasText("NEW");
+        assertThat(tracker.statusBadge(title)).hasText("NEW");
     }
 
     @Test

@@ -7,9 +7,12 @@ import com.microsoft.playwright.Page;
  * Page Object for the workflow-tracker main screen.
  *
  * All locators here are derived purely from the observable DOM contract of
- * the app (element ids, classes, and structure) - never from its source
- * code. Tests talk only to this class, never to raw locators, so a markup
- * change only requires updating one file.
+ * the app (element ids, classes, data-testid attributes, and structure) -
+ * never from its source code. Where the app exposes a data-testid, it's
+ * preferred over a CSS class or bare tag name, since it's a hook meant for
+ * automation and won't shift if styling or element order changes. Tests
+ * talk only to this class, never to raw locators, so a markup change only
+ * requires updating one file.
  */
 public class TrackerPage {
 
@@ -53,15 +56,16 @@ public class TrackerPage {
     }
 
     public void setStatusForRow(String title, String status) {
-        rowWithTitle(title).locator("select").selectOption(status);
+        rowWithTitle(title).locator("[data-testid^='status-select-']").selectOption(status);
     }
 
-    public String statusBadgeText(String title) {
-        return rowWithTitle(title).locator(".badge").innerText();
+    /** Locator (not a resolved String) so callers can use Playwright's auto-retrying assertions on it. */
+    public Locator statusBadge(String title) {
+        return rowWithTitle(title).locator("[data-testid^='item-status-']");
     }
 
     public void deleteRow(String title) {
-        rowWithTitle(title).locator("button").click();
+        rowWithTitle(title).locator("[data-testid^='delete-btn-']").click();
     }
 
     public int rowCount() {

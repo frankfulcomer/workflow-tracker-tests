@@ -3,7 +3,7 @@
 [![CI](https://github.com/frankfulcomer/workflow-tracker-tests/actions/workflows/ci.yml/badge.svg)](https://github.com/frankfulcomer/workflow-tracker-tests/actions/workflows/ci.yml)
 
 A **black-box** UI automation suite for [workflow-tracker](https://github.com/frankfulcomer/workflow-tracker),
-built with Playwright (Java) and JUnit 5.
+built with Playwright (Java) and JUnit 5, using a Page Object Model.
 
 ## Application under test
 
@@ -76,3 +76,16 @@ Each test creates whatever data it needs through the app's own UI (the
 create form) rather than assuming any particular pre-existing/seeded
 state, so the suite is self-contained and safe to run repeatedly against
 a long-lived instance.
+
+## Continuous Integration
+
+On every push and PR, GitHub Actions (`.github/workflows/ci.yml`) checks
+out this suite, **separately checks out and boots a copy of the
+workflow-tracker app** so there's something running on `localhost:8080`
+to test, then runs `mvn test` against it and uploads the JUnit report.
+
+That checkout of the app is a **runtime convenience only** - CI needs a
+live instance to point the browser at, the same way you'd need one
+running locally. The test code itself is compiled and run without the
+app's source anywhere on the classpath; nothing in this repo imports,
+builds against, or inspects the app's Java classes.

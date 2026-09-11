@@ -16,16 +16,16 @@ class StatusWorkflowTest extends BaseUiTest {
 
         String title = "Automated test - happy path " + UUID.randomUUID();
         tracker.createItem(title, "Frank", "Should move NEW -> IN_PROGRESS -> RESOLVED -> CLOSED");
-        assertThat(tracker.rowWithTitle(title).locator(".badge")).hasText("NEW");
+        assertThat(tracker.statusBadge(title)).hasText("NEW");
 
         tracker.setStatusForRow(title, "IN_PROGRESS");
-        assertThat(tracker.rowWithTitle(title).locator(".badge")).hasText("IN PROGRESS");
+        assertThat(tracker.statusBadge(title)).hasText("IN PROGRESS");
 
         tracker.setStatusForRow(title, "RESOLVED");
-        assertThat(tracker.rowWithTitle(title).locator(".badge")).hasText("RESOLVED");
+        assertThat(tracker.statusBadge(title)).hasText("RESOLVED");
 
         tracker.setStatusForRow(title, "CLOSED");
-        assertThat(tracker.rowWithTitle(title).locator(".badge")).hasText("CLOSED");
+        assertThat(tracker.statusBadge(title)).hasText("CLOSED");
     }
 
     @Test
@@ -34,7 +34,7 @@ class StatusWorkflowTest extends BaseUiTest {
 
         String title = "Automated test - illegal transition " + UUID.randomUUID();
         tracker.createItem(title, "Frank", "Should stay NEW - can't jump straight to CLOSED");
-        assertThat(tracker.rowWithTitle(title).locator(".badge")).hasText("NEW");
+        assertThat(tracker.statusBadge(title)).hasText("NEW");
 
         // Any dialog the app pops up to report the rejection (e.g. a native
         // alert()) is auto-dismissed by Playwright by default, so this never
@@ -43,6 +43,6 @@ class StatusWorkflowTest extends BaseUiTest {
 
         // The business rule under test: a NEW item can't skip straight to
         // CLOSED. The badge should still read NEW once the app settles.
-        assertThat(tracker.rowWithTitle(title).locator(".badge")).hasText("NEW");
+        assertThat(tracker.statusBadge(title)).hasText("NEW");
     }
 }
