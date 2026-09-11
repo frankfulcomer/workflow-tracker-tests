@@ -5,6 +5,16 @@
 A **black-box** UI automation suite for [workflow-tracker](https://github.com/frankfulcomer/workflow-tracker),
 built with Playwright (Java) and JUnit 5.
 
+## Application under test
+
+This suite tests the workflow-tracker app:
+https://github.com/frankfulcomer/workflow-tracker
+
+These two repos are intentionally separate - this test suite has no access
+to or dependency on that app's source code. It only knows the app as a
+running service at a URL, the same way a QA engineer would test a deployed
+environment they didn't build.
+
 ## What "black-box" means here
 
 This project has **no dependency on the application's source code, build,
