@@ -84,6 +84,12 @@ out this suite, **separately checks out and boots a copy of the
 workflow-tracker app** so there's something running on `localhost:8080`
 to test, then runs `mvn test` against it and uploads the JUnit report.
 
+This workflow also accepts a `repository_dispatch` trigger from
+workflow-tracker's own CI: when that app's build succeeds on `main`, it
+fires an event here carrying the commit SHA, and this run checks out that
+exact SHA instead of `main` - so the regression suite always tests the
+revision that just passed the app's build, not a later or unrelated one.
+
 That checkout of the app is a **runtime convenience only** - CI needs a
 live instance to point the browser at, the same way you'd need one
 running locally. The test code itself is compiled and run without the

@@ -5,6 +5,11 @@ on:
     branches: [ main ]
   pull_request:
     branches: [ main ]
+  # Fired by workflow-tracker's CI after a successful push to its main,
+  # carrying the commit SHA to test in client_payload. See the checkout
+  # step below for how that SHA is used.
+  repository_dispatch:
+    types: [ app-ci-success ]
 
 jobs:
   test:
@@ -16,11 +21,19 @@ jobs:
       # This is a runtime dependency only (something has to be listening on
       # localhost:8080 for a black-box suite to test against) - the test
       # suite itself never imports or builds against the app's source.
+      #
+      # Dual-trigger behavior: on a normal push/PR run, `ref` evaluates to
+      # an empty string, so actions/checkout falls back to its default
+      # (the app's main branch). When triggered via repository_dispatch
+      # from workflow-tracker's CI, it pins to the exact commit SHA from
+      # client_payload.sha, so this suite always tests the revision that
+      # actually triggered it - not whatever main has moved to since.
       - name: Check out the app under test
         uses: actions/checkout@v5
         with:
           repository: frankfulcomer/workflow-tracker
           path: workflow-tracker-app
+          ref: ${{ github.event_name == 'repository_dispatch' && github.event.client_payload.sha || '' }}
 
       - name: Set up JDK 17
         uses: actions/setup-java@v5
