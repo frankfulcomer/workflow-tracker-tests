@@ -1,5 +1,7 @@
 # workflow-tracker-tests
 
+[![CI](https://github.com/frankfulcomer/workflow-tracker-tests/actions/workflows/ci.yml/badge.svg)](https://github.com/frankfulcomer/workflow-tracker-tests/actions/workflows/ci.yml)
+
 A **black-box** UI automation suite for [workflow-tracker](https://github.com/frankfulcomer/workflow-tracker),
 built with Playwright (Java) and JUnit 5.
 
