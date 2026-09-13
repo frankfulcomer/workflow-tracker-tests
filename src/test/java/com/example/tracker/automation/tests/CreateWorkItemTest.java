@@ -15,7 +15,7 @@ class CreateWorkItemTest extends BaseUiTest {
         TrackerPage tracker = new TrackerPage(page).open(baseUrl);
 
         String title = "Automated test - create " + UUID.randomUUID();
-        tracker.createItem(title, "Frank", "Created by a black-box Playwright UI test");
+        tracker.createItem(title, "FirstName1 LastName1", "Created by a black-box Playwright UI test");
 
         // assertThat(...) here is Playwright's web-first assertion: it retries
         // until the element appears (or a timeout is hit) instead of failing
@@ -29,10 +29,12 @@ class CreateWorkItemTest extends BaseUiTest {
         TrackerPage tracker = new TrackerPage(page).open(baseUrl);
 
         int rowsBefore = tracker.rowCount();
-        tracker.createItem("", "Frank", "No title on purpose " + UUID.randomUUID());
+        tracker.fillCreateForm("", "FirstName1 LastName1", "No title on purpose " + UUID.randomUUID());
 
-        // #title is a required field, so the browser blocks the form
-        // submission client-side and the row count should never change.
+        // WF-006 AC-4: the Create action is disabled until a nonblank title has
+        // been entered, so there's nothing to click - and the row count never
+        // changes.
+        assertThat(tracker.createButton()).isDisabled();
         assertThat(tracker.allRows()).hasCount(rowsBefore);
     }
 }

@@ -15,7 +15,7 @@ class StatusWorkflowTest extends BaseUiTest {
         TrackerPage tracker = new TrackerPage(page).open(baseUrl);
 
         String title = "Automated test - happy path " + UUID.randomUUID();
-        tracker.createItem(title, "Frank", "Should move NEW -> IN_PROGRESS -> RESOLVED -> CLOSED");
+        tracker.createItem(title, "FirstName2 LastName2", "Should move NEW -> IN_PROGRESS -> RESOLVED -> CLOSED");
         assertThat(tracker.statusBadge(title)).hasText("NEW");
 
         tracker.setStatusForRow(title, "IN_PROGRESS");
@@ -33,7 +33,7 @@ class StatusWorkflowTest extends BaseUiTest {
         TrackerPage tracker = new TrackerPage(page).open(baseUrl);
 
         String title = "Automated test - illegal transition " + UUID.randomUUID();
-        tracker.createItem(title, "Frank", "Should stay NEW - can't jump straight to CLOSED");
+        tracker.createItem(title, null, "Should stay NEW - can't jump straight to CLOSED");
         assertThat(tracker.statusBadge(title)).hasText("NEW");
 
         // Any dialog the app pops up to report the rejection (e.g. a native

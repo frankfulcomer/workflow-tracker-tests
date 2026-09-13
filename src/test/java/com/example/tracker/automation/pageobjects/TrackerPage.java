@@ -2,6 +2,7 @@ package com.example.tracker.automation.pageobjects;
 
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
+import com.microsoft.playwright.options.SelectOption;
 
 /**
  * Page Object for the workflow-tracker main screen.
@@ -28,16 +29,33 @@ public class TrackerPage {
         return this;
     }
 
-    public TrackerPage createItem(String title, String assignee, String description) {
+    /**
+     * Fills the create form without submitting it. {@code owner} must match the
+     * visible label of an option in the Owner select (a predefined owner's name,
+     * e.g. "FirstName1 LastName1"); pass null or "" to leave it as Unassigned.
+     */
+    public TrackerPage fillCreateForm(String title, String owner, String description) {
         page.fill("#title", title);
-        page.fill("#assignee", assignee);
+        if (owner != null && !owner.isEmpty()) {
+            page.selectOption("#owner", new SelectOption().setLabel(owner));
+        }
         page.fill("#description", description);
+        return this;
+    }
+
+    public TrackerPage createItem(String title, String owner, String description) {
+        fillCreateForm(title, owner, description);
         page.click("#create-form button[type='submit']");
         return this;
     }
 
     public String createErrorText() {
         return page.locator("#create-error").innerText();
+    }
+
+    /** The Create action - disabled until a nonblank title has been entered (WF-006 AC-4). */
+    public Locator createButton() {
+        return page.locator("#create-btn");
     }
 
     public TrackerPage search(String text) {

@@ -18,8 +18,8 @@ class SearchAndFilterTest extends BaseUiTest {
         String matchingTitle = "Findable via search " + marker;
         String otherTitle = "Should stay hidden " + UUID.randomUUID();
 
-        tracker.createItem(matchingTitle, "Frank", "Should be found by search");
-        tracker.createItem(otherTitle, "Frank", "Should not show up in the filtered results");
+        tracker.createItem(matchingTitle, null, "Should be found by search");
+        tracker.createItem(otherTitle, null, "Should not show up in the filtered results");
 
         tracker.search(marker);
 
@@ -34,10 +34,10 @@ class SearchAndFilterTest extends BaseUiTest {
         String resolvedTitle = "Automated test - resolved item " + UUID.randomUUID();
         String newTitle = "Automated test - still new item " + UUID.randomUUID();
 
-        tracker.createItem(resolvedTitle, "Frank", "Will be moved to RESOLVED");
+        tracker.createItem(resolvedTitle, null, "Will be moved to RESOLVED");
         tracker.setStatusForRow(resolvedTitle, "RESOLVED");
 
-        tracker.createItem(newTitle, "Frank", "Stays in the default NEW status");
+        tracker.createItem(newTitle, null, "Stays in the default NEW status");
 
         tracker.filterByStatus("RESOLVED");
 
