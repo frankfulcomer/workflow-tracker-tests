@@ -18,6 +18,9 @@
         <playwright.version>1.47.0</playwright.version>
         <junit.version>5.11.0</junit.version>
         <rest-assured.version>5.4.0</rest-assured.version>
+        <!-- Must match the app's resolved H2 version (Spring Boot 3.3.4 -> H2 2.2.224):
+             the TCP wire protocol is version-coupled between client and server. -->
+        <h2.version>2.2.224</h2.version>
         <!-- Overridable via -Dbase.url=... ; this is the default when not set -->
         <base.url>http://localhost:8080</base.url>
     </properties>
@@ -38,6 +41,15 @@
             <groupId>io.rest-assured</groupId>
             <artifactId>rest-assured</artifactId>
             <version>${rest-assured.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <!-- JDBC driver only, for direct SQL verification against the app's
+             opt-in sql-verify H2 TCP listener. Not a dependency on the app's
+             source, models, or repositories. -->
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <version>${h2.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

@@ -52,7 +52,11 @@ jobs:
       - name: Start the app under test
         working-directory: workflow-tracker-app
         run: |
-          nohup java -jar target/*.jar > ../app.log 2>&1 &
+          # sql-verify is opt-in and additive only (see H2TcpServerConfig in
+          # the app repo): it exposes the same in-memory H2 database over a
+          # TCP listener so the sql/ test layer can verify persistence
+          # directly. It does not change default datasource/seed behavior.
+          nohup java -jar target/*.jar --spring.profiles.active=sql-verify > ../app.log 2>&1 &
           echo $! > ../app.pid
 
       - name: Wait for the app to be ready
