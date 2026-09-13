@@ -46,6 +46,15 @@ public class TrackerPage {
     public TrackerPage createItem(String title, String owner, String description) {
         fillCreateForm(title, owner, description);
         page.click("#create-form button[type='submit']");
+        // WF-006 AC-8: on success the form resets (title clears) and Create
+        // re-disables. Waiting for that here - rather than letting the caller
+        // return immediately - is what makes back-to-back createItem() calls
+        // safe: without it, a still-in-flight submission's reset can land
+        // after a *later* createItem() has already filled a new title,
+        // clobbering it and leaving Create stuck disabled.
+        page.waitForFunction(
+                "() => document.querySelector('#title').value === '' "
+                        + "&& document.querySelector('#create-btn').disabled === true");
         return this;
     }
 
