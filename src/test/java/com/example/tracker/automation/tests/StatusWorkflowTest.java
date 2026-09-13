@@ -45,4 +45,26 @@ class StatusWorkflowTest extends BaseUiTest {
         // CLOSED. The badge should still read NEW once the app settles.
         assertThat(tracker.statusBadge(title)).hasText("NEW");
     }
+
+    @Test
+    void movesInAndOutOfOpenStatus() {
+        TrackerPage tracker = new TrackerPage(page).open(baseUrl);
+
+        String title = "Automated test - open status " + UUID.randomUUID();
+        tracker.createItem(title, null, "Should support NEW -> OPEN -> IN_PROGRESS, and reject OPEN -> CLOSED");
+
+        // WF-002 AC-3: NEW -> OPEN is allowed.
+        tracker.setStatusForRow(title, "OPEN");
+        assertThat(tracker.statusBadge(title)).hasText("OPEN");
+
+        // WF-002 AC-12/AC-13: OPEN's only legal forward transition is to
+        // IN_PROGRESS, so OPEN -> CLOSED must be rejected and leave the
+        // status unchanged.
+        tracker.setStatusForRow(title, "CLOSED");
+        assertThat(tracker.statusBadge(title)).hasText("OPEN");
+
+        // WF-002 AC-5: OPEN -> IN_PROGRESS is allowed.
+        tracker.setStatusForRow(title, "IN_PROGRESS");
+        assertThat(tracker.statusBadge(title)).hasText("IN PROGRESS");
+    }
 }

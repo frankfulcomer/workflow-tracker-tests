@@ -93,4 +93,65 @@ public class TrackerPage {
     public Locator allRows() {
         return page.locator("#items-body tr");
     }
+
+    /** The list row's Owner column - no data-testid is exposed for it, so this relies on column order. */
+    public Locator ownerCell(String title) {
+        return rowWithTitle(title).locator("td").nth(1);
+    }
+
+    // --- Item detail modal ---
+
+    public Locator detailModal() {
+        return page.locator("#item-detail-modal");
+    }
+
+    public TrackerPage openDetail(String title) {
+        rowWithTitle(title).locator("[data-testid^='view-btn-']").click();
+        detailModal().waitFor();
+        return this;
+    }
+
+    public Locator detailTitleInput() {
+        return page.locator("#detail-title");
+    }
+
+    public TrackerPage setDetailTitle(String title) {
+        page.fill("#detail-title", title);
+        return this;
+    }
+
+    public Locator detailDescriptionInput() {
+        return page.locator("#detail-description");
+    }
+
+    public TrackerPage setDetailDescription(String description) {
+        page.fill("#detail-description", description);
+        return this;
+    }
+
+    /** Selects an owner in the detail modal by name; pass null or "" to select Unassigned. */
+    public TrackerPage setDetailOwner(String owner) {
+        String label = (owner == null || owner.isEmpty()) ? "Unassigned" : owner;
+        page.selectOption("#detail-owner", new SelectOption().setLabel(label));
+        return this;
+    }
+
+    public Locator saveChangesButton() {
+        return page.locator("[data-testid='save-changes-btn']");
+    }
+
+    public TrackerPage saveChanges() {
+        saveChangesButton().click();
+        return this;
+    }
+
+    public TrackerPage closeDetail() {
+        page.click("#detail-close-btn");
+        return this;
+    }
+
+    /** Status-history rows in the detail modal, in display order (oldest first). */
+    public Locator historyRows() {
+        return page.locator("#detail-history-body tr");
+    }
 }

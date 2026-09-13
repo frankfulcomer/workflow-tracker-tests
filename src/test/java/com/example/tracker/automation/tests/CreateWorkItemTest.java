@@ -37,4 +37,17 @@ class CreateWorkItemTest extends BaseUiTest {
         assertThat(tracker.createButton()).isDisabled();
         assertThat(tracker.allRows()).hasCount(rowsBefore);
     }
+
+    @Test
+    void createsAnItemWithOwnerAndDescription() {
+        TrackerPage tracker = new TrackerPage(page).open(baseUrl);
+
+        String title = "Automated test - owner and description " + UUID.randomUUID();
+        tracker.createItem(title, "FirstName1 LastName1", "Has both an owner and a description");
+
+        // WF-001 AC-1/AC-3: an owner assigned at creation shows up on the list row.
+        assertThat(tracker.rowWithTitle(title)).isVisible();
+        assertThat(tracker.ownerCell(title)).hasText("FirstName1 LastName1");
+        assertThat(tracker.statusBadge(title)).hasText("NEW");
+    }
 }
