@@ -16,14 +16,14 @@ below for what that looked like in practice.
 
 ```mermaid
 flowchart LR
-    UI["UI Layer<br/>Playwright + Page Object<br/>11 tests"] -->|drives via browser| App[("workflow-tracker<br/>running instance")]
+    UI["UI Layer<br/>Playwright + Page Object<br/>18 tests"] -->|drives via browser| App[("workflow-tracker<br/>running instance")]
     API["API Layer<br/>REST Assured<br/>6 tests"] -->|HTTP requests| App
     SQL["SQL Layer<br/>JDBC, read-only<br/>5 tests"] -->|creates/transitions via| API
     SQL -->|verifies persisted state directly| DB[("H2 database<br/>sql-verify TCP listener")]
     App --- DB
 ```
 
-11 UI + 6 API + 5 SQL = 22 tests total, each traceable to one or more
+18 UI + 6 API + 5 SQL = 29 tests total, each traceable to one or more
 documented acceptance criteria — a **deliberately selected regression
 suite, not an attempt at comprehensive application coverage**. Full
 mapping in [`docs/traceability.md`](docs/traceability.md).
@@ -72,7 +72,7 @@ sequenceDiagram
     Tests->>Tests: checkout workflow-tracker-tests@main
     Tests->>Tests: checkout workflow-tracker@exact SHA
     Tests->>Tests: build and start app (sql-verify profile)
-    Tests->>Tests: run 22 tests (UI, API, SQL)
+    Tests->>Tests: run 29 tests (UI, API, SQL)
     Tests-->>App: Surefire report (artifact)
 ```
 
@@ -113,10 +113,10 @@ src/test/java/com/example/tracker/automation/
   api/WorkItemApiClient.java       # thin REST client, returns raw responses
   sql/WorkItemSqlHelper.java       # thin JDBC wrapper, plain parameterized SQL
   tests/
-    CreateWorkItemTest.java          # creation, required-title, owner+description (3)
-    StatusWorkflowTest.java          # status transitions incl. OPEN (3)
+    CreateWorkItemTest.java          # creation, required-title, owner+description (5)
+    StatusWorkflowTest.java          # status transitions incl. OPEN (5)
     SearchAndFilterTest.java         # title search, status filter (2)
-    WorkItemDetailTest.java          # edit/save, unsaved-change protection, status history (3)
+    WorkItemDetailTest.java          # edit/save, unsaved-change protection, status history (6)
     api/
       WorkItemCreationApiTest.java     # creation contract incl. negative paths (3)
       StatusTransitionApiTest.java     # valid/invalid/no-op transitions (3)

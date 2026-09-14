@@ -45,7 +45,7 @@ public class TrackerPage {
 
     public TrackerPage createItem(String title, String owner, String description) {
         fillCreateForm(title, owner, description);
-        page.click("#create-form button[type='submit']");
+        submitCreateForm();
         // WF-006 AC-8: on success the form resets (title clears) and Create
         // re-disables. Waiting for that here - rather than letting the caller
         // return immediately - is what makes back-to-back createItem() calls
@@ -58,13 +58,39 @@ public class TrackerPage {
         return this;
     }
 
+    /** Submits the create form without waiting for the success-reset condition - use this directly (instead of createItem()) when exercising a creation-failure path, since the form does not reset on failure. */
+    public TrackerPage submitCreateForm() {
+        page.click("#create-form button[type='submit']");
+        return this;
+    }
+
     public String createErrorText() {
         return page.locator("#create-error").innerText();
+    }
+
+    /** Locator (not a resolved String) so callers can use Playwright's auto-retrying assertions on it. */
+    public Locator createError() {
+        return page.locator("#create-error");
     }
 
     /** The Create action - disabled until a nonblank title has been entered (WF-006 AC-4). */
     public Locator createButton() {
         return page.locator("#create-btn");
+    }
+
+    /** The create form's Title input - exposed so tests can verify it resets after a successful create (WF-006 AC-8). */
+    public Locator createTitleInput() {
+        return page.locator("#title");
+    }
+
+    /** The create form's Owner select - exposed so tests can verify it resets to Unassigned after a successful create (WF-006 AC-8). */
+    public Locator createOwnerSelect() {
+        return page.locator("#owner");
+    }
+
+    /** The create form's Description textarea - exposed so tests can verify it resets after a successful create (WF-006 AC-8). */
+    public Locator createDescriptionInput() {
+        return page.locator("#description");
     }
 
     public TrackerPage search(String text) {
@@ -84,6 +110,11 @@ public class TrackerPage {
 
     public void setStatusForRow(String title, String status) {
         rowWithTitle(title).locator("[data-testid^='status-select-']").selectOption(status);
+    }
+
+    /** The row's status-select options, in display order - lets tests assert exactly which statuses are supported (WF-002 AC-1). */
+    public Locator statusSelectOptions(String title) {
+        return rowWithTitle(title).locator("[data-testid^='status-select-'] option");
     }
 
     /** Locator (not a resolved String) so callers can use Playwright's auto-retrying assertions on it. */
@@ -106,6 +137,11 @@ public class TrackerPage {
     /** The list row's Owner column - no data-testid is exposed for it, so this relies on column order. */
     public Locator ownerCell(String title) {
         return rowWithTitle(title).locator("td").nth(1);
+    }
+
+    /** The list row's Updated column - no data-testid is exposed for it, so this relies on column order. */
+    public Locator updatedCell(String title) {
+        return rowWithTitle(title).locator("td").nth(3);
     }
 
     // --- Item detail modal ---
@@ -143,6 +179,16 @@ public class TrackerPage {
         String label = (owner == null || owner.isEmpty()) ? "Unassigned" : owner;
         page.selectOption("#detail-owner", new SelectOption().setLabel(label));
         return this;
+    }
+
+    /** The currently selected option in the detail modal's Owner select - its visible label (an owner's name, or "Unassigned"). */
+    public Locator detailOwnerSelected() {
+        return page.locator("#detail-owner option:checked");
+    }
+
+    /** The detail modal's "Updated" timestamp text. */
+    public Locator detailUpdated() {
+        return page.locator("#detail-updated");
     }
 
     public Locator saveChangesButton() {

@@ -9,6 +9,7 @@ import java.util.UUID;
 
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -29,14 +30,15 @@ class WorkItemCreationApiTest extends BaseApiTest {
         Response created = api.create(title, validOwnerId, description);
 
         // WF-006 AC-5/AC-6, WF-001 AC-7, WF-003 AC-7: the created item carries the
-        // supplied values, starts in NEW, and has exactly one initial history
-        // entry with no previous status.
+        // supplied values, starts in NEW, records a creation timestamp, and has
+        // exactly one initial history entry with no previous status.
         created.then()
                 .statusCode(201)
                 .body("title", equalTo(title))
                 .body("description", equalTo(description))
                 .body("owner.id", equalTo(validOwnerId.intValue()))
                 .body("status", equalTo("NEW"))
+                .body("createdDate", notNullValue())
                 .body("statusHistory", hasSize(1))
                 .body("statusHistory[0].previousStatus", nullValue())
                 .body("statusHistory[0].newStatus", equalTo("NEW"));
@@ -44,11 +46,12 @@ class WorkItemCreationApiTest extends BaseApiTest {
         long id = created.jsonPath().getLong("id");
 
         // Confirm it's actually persisted (WF-006 AC-7), not just echoed in the
-        // POST response.
+        // POST response - including the creation timestamp (WF-001 AC-7).
         api.get(id).then()
                 .statusCode(200)
                 .body("title", equalTo(title))
                 .body("status", equalTo("NEW"))
+                .body("createdDate", notNullValue())
                 .body("statusHistory", hasSize(1));
     }
 
