@@ -28,6 +28,10 @@ documented acceptance criteria — a **deliberately selected regression
 suite, not an attempt at comprehensive application coverage**. Full
 mapping in [`docs/traceability.md`](docs/traceability.md).
 
+### Manual Test Suites
+
+Manual test workbooks are available in [`docs/manual-tests/`](docs/manual-tests/). They mirror the UI, API, and SQL automated suites and include execution steps, expected and actual results, and requirement traceability.
+
 ## Notable Findings
 
 - **Exploratory testing drove requirement changes.** Manually exercising
