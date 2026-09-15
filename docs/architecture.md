@@ -1,11 +1,17 @@
 # QA Architecture and Design Decisions
 
 Workflow Tracker Tests was developed using an **AI-assisted QA engineering
-process**.
+process incorporating both Claude Code and ChatGPT**.
 
-AI has accelerated implementation, investigation, troubleshooting,
-documentation, and learning. Architectural decisions, however, are evaluated
-against the QA problem the project is intended to solve.
+The tester acts as the orchestrator of that process: defining the testing
+problem, determining what capability is needed, directing implementation and
+analysis, evaluating proposed approaches, reviewing results, and deciding what
+should be accepted, rejected, or investigated further.
+
+Claude Code and ChatGPT provide complementary forms of assistance across
+implementation, investigation, architecture, test analysis, troubleshooting,
+documentation, and learning. Architectural and quality decisions remain under
+tester review and validation.
 
 This document focuses on those decisions rather than the mechanics of
 individual tests.
@@ -224,42 +230,60 @@ flowchart TB
     Investigation --> Regression["New Regression Coverage"]
 ```
 
-## AI-Assisted Engineering
+## AI-Assisted Engineering and Orchestration
 
-AI is deliberately part of the development process for this POC.
+AI is deliberately part of the engineering process for this POC, but the
+process is not delegated to a single AI system.
 
-Its role includes helping accelerate:
+The tester coordinates tools with complementary strengths:
 
-- automation implementation
-- framework scaffolding
-- troubleshooting
-- investigation
-- alternative approaches
-- documentation
-- code explanation
-- learning unfamiliar APIs and technologies
+- **Claude Code** — repository-level implementation, scaffolding, debugging,
+  and iterative code changes
+- **ChatGPT** — QA strategy, requirements and test analysis, architecture and
+  design review, investigation, technical learning, and evaluation of
+  implementation approaches
 
-Its role does **not** include deciding independently what constitutes acceptable
-product behavior.
-
-The working model is:
+These are working roles rather than rigid boundaries. The tools can overlap,
+challenge an approach, or contribute at different points in the same problem.
+The tester determines what problem is being solved, what assistance is useful,
+and whether the result is acceptable.
 
 ```mermaid
 flowchart TB
-    Human1["Tester<br/>Problem / Intent"] --> AI["AI-Assisted Engineering"]
-    AI --> Result["Candidate Working Result"]
-    Result --> Human2["Tester<br/>Execute / Inspect / Question / Validate"]
-    Human2 --> Accept
-    Human2 --> Investigate
-    Investigate --> AI
+    Tester1["Tester<br/>QA Judgment / Direction"] --> Orch["AI Orchestration"]
+    Orch --> Claude["Claude Code<br/>Implementation / Scaffolding<br/>Code Changes / Debugging"]
+    Orch --> ChatGPT["ChatGPT<br/>QA Strategy / Analysis<br/>Architecture / Investigation"]
+    Claude --> Capability["QA Capability"]
+    ChatGPT --> Capability
+    Capability --> Manual["Manual Testing"]
+    Capability --> UI["UI Automation"]
+    Capability --> APISQL["API / SQL Verification"]
+    Manual --> Evidence["Test Evidence"]
+    UI --> Evidence
+    APISQL --> Evidence
+    Evidence --> Tester2["Tester<br/>Review / Investigation"]
+    Tester2 -->|accept| Knowledge["Validated Capability / Knowledge"]
+    Tester2 -->|iterate| Orch
 ```
 
-This distinction is particularly important when AI enables implementation in
-technologies where the tester has less prior hands-on experience.
+AI can shorten the path from an identified testing need to a candidate
+implementation or analysis. It does not remove the requirement to understand
+the testing problem, evaluate the proposed solution, execute it, inspect the
+evidence, and determine whether the result deserves trust.
 
-AI can shorten the time required to produce a candidate solution. It does not
-remove the requirement to understand enough of that solution to evaluate
-whether it actually solves the testing problem.
+The orchestration model is therefore:
+
+> **Testing need → tester direction → AI-assisted implementation and analysis
+> → execution → tester evaluation → acceptance or investigation → new
+> knowledge**
+
+This allows AI to increase the amount and breadth of work a tester can perform
+without transferring ownership of quality decisions to the AI systems.
+
+The public architecture intentionally describes this model at a high level.
+The detailed mechanics of tool selection, prompting, handoffs, and validation
+are implementation workflow rather than part of the product-facing test
+architecture.
 
 ## A Real Feedback Loop
 
