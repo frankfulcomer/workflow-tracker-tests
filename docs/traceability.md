@@ -3,8 +3,8 @@
 This table maps every acceptance criterion in workflow-tracker's
 [`product-stories.md`](https://github.com/frankfulcomer/workflow-tracker/blob/main/docs/product-stories.md)
 (stories WF-001 through WF-006) to the automated and/or manual test(s) that
-verify it, based on the automated suite's last full run (**29 tests: 18 UI,
-6 API, 5 SQL — 0 failures, 0 errors, 0 skipped**) and the three manual test
+verify it, based on the automated suite's last full run (**30 tests: 18 UI,
+6 API, 6 SQL — 0 failures, 0 errors, 0 skipped**) and the three manual test
 workbooks under `docs/manual-tests/`.
 
 Coverage here is derived directly from each acceptance criterion's text
