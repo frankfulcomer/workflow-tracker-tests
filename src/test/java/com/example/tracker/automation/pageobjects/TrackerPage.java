@@ -4,6 +4,9 @@ import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.options.SelectOption;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+
 /**
  * Page Object for the workflow-tracker main screen.
  *
@@ -93,13 +96,28 @@ public class TrackerPage {
         return page.locator("#description");
     }
 
+    /**
+     * Fills the search box and waits for the resulting (debounced) filtered
+     * fetch to complete before returning. Without this, callers that assert
+     * immediately after search() can observe the list from before the
+     * filtered request lands rather than the actual filtered result.
+     */
     public TrackerPage search(String text) {
-        page.fill("#search-box", text);
+        String encoded = URLEncoder.encode(text, StandardCharsets.UTF_8);
+        page.waitForResponse(
+                response -> response.url().contains("/api/items?") && response.url().contains("q=" + encoded),
+                () -> page.fill("#search-box", text));
         return this;
     }
 
+    /**
+     * Selects the status filter and waits for the resulting filtered fetch to
+     * complete before returning - see {@link #search(String)}.
+     */
     public TrackerPage filterByStatus(String status) {
-        page.selectOption("#status-filter", status);
+        page.waitForResponse(
+                response -> response.url().contains("/api/items?") && response.url().contains("status=" + status),
+                () -> page.selectOption("#status-filter", status));
         return this;
     }
 

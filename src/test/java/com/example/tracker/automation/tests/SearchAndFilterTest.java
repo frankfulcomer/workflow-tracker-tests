@@ -35,7 +35,12 @@ class SearchAndFilterTest extends BaseUiTest {
         String newTitle = "Automated test - still new item " + UUID.randomUUID();
 
         tracker.createItem(resolvedTitle, null, "Will be moved to RESOLVED");
+        // NEW -> RESOLVED isn't a legal direct transition (WF-002); go through
+        // IN_PROGRESS first, waiting for each to land before firing the next.
+        tracker.setStatusForRow(resolvedTitle, "IN_PROGRESS");
+        assertThat(tracker.statusBadge(resolvedTitle)).hasText("IN PROGRESS");
         tracker.setStatusForRow(resolvedTitle, "RESOLVED");
+        assertThat(tracker.statusBadge(resolvedTitle)).hasText("RESOLVED");
 
         tracker.createItem(newTitle, null, "Stays in the default NEW status");
 
