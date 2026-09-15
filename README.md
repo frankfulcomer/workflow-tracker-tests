@@ -12,6 +12,34 @@ app under test is a deliberately simple, controllable sandbox; this is
 where the QA engineering work actually lives — see **Notable Findings**
 below for what that looked like in practice.
 
+## Purpose
+
+Workflow Tracker Tests is a QA proof of concept exploring how an experienced
+QA engineer can use **AI-assisted development** to build a maintainable,
+layered testing capability around an existing business application.
+
+The project was deliberately approached from a **black-box testing
+perspective**. The QA system interacts with the application through externally
+observable boundaries — its browser UI, REST API, and read-only database
+verification — rather than importing or depending on application
+implementation code. This keeps the regression system independent from the
+product it verifies and models an approach that can reduce how much proprietary
+application code needs to be exposed during AI-assisted QA development.
+
+AI has been used throughout the project as an implementation, investigation,
+and learning accelerator — not as a substitute for QA judgment. The tester
+defines the behaviors and risks to investigate, establishes expected results,
+evaluates testing approaches, reviews and executes generated code, investigates
+failures, and determines whether the resulting behavior and evidence are
+trustworthy. AI helps shorten the path from an identified testing need to a
+working implementation.
+
+The goal is not maximum automation or a demonstration of manual coding
+volume. It is to explore how **QA experience, black-box testing, modern
+automation, and AI-assisted development** can work together to establish
+useful testing capability quickly while retaining human ownership of quality
+decisions.
+
 ## Testing strategy
 
 ```mermaid
@@ -28,9 +56,57 @@ documented acceptance criteria — a **deliberately selected regression
 suite, not an attempt at comprehensive application coverage**. Full
 mapping in [`docs/traceability.md`](docs/traceability.md).
 
+The layers are deliberately complementary. Browser automation is used when
+browser behavior or a representative user workflow matters. API testing
+provides faster, focused verification of service contracts and business
+behavior. JDBC/SQL is used when persisted state needs to be proven directly.
+
+The SQL layer is intentionally read-only. Test state is created or changed
+through the application's own UI or API, and SQL observes the result rather
+than bypassing application behavior to manufacture test conditions.
+
 ### Manual Test Suites
 
-Manual test workbooks are available in [`docs/manual-tests/`](docs/manual-tests/). They mirror the UI, API, and SQL automated suites and include execution steps, expected and actual results, and requirement traceability.
+Manual test workbooks are available in [`docs/manual-tests/`](docs/manual-tests/).
+They mirror the UI, API, and SQL automated suites and include execution steps,
+expected and actual results, and requirement traceability.
+
+Automation handles repeatable checks; manual and exploratory testing remain
+important for discovering unexpected behavior, questioning assumptions, and
+deciding what deserves regression coverage.
+
+For the reasoning behind these design choices, see
+[`docs/architecture.md`](docs/architecture.md).
+
+## Black-box by design
+
+The test project and application are maintained separately.
+
+The regression repository does not depend on the application's source, build,
+entities, repositories, services, or other internal Java classes. It verifies
+the product through externally observable interfaces:
+
+- browser UI
+- REST API
+- database state, using read-only SQL verification
+
+This provides conventional test independence, but it also creates a useful
+boundary for AI-assisted QA work. Requirements, documented interfaces,
+observable behavior, request/response data, database schemas, and test results
+can provide much of the context needed to develop black-box tests without
+automatically providing an AI system with proprietary application
+implementation code.
+
+This does **not** eliminate security or confidentiality concerns. Credentials,
+customer or production data, logs, source code, configuration, and other
+sensitive material still require appropriate organizational controls and
+approved tooling.
+
+The principle is narrower:
+
+> **Give the QA system — and the AI assisting its development — the
+> information necessary to verify behavior without automatically giving it
+> everything used to implement that behavior.**
 
 ## Notable Findings
 
@@ -58,6 +134,14 @@ Manual test workbooks are available in [`docs/manual-tests/`](docs/manual-tests/
   transition truly writes zero history rows, independent of what the
   application's own ORM mapping or JSON serialization reports back.
 
+These findings also demonstrate the intended AI-assisted feedback loop:
+automation and AI can accelerate implementation and investigation, but an
+unexpected result still has to be reproduced, understood, evaluated, and
+verified before it is accepted.
+
+> **AI can accelerate implementation and analysis; passing evidence still
+> has to earn trust.**
+
 ## Continuous Integration
 
 ```mermaid
@@ -82,18 +166,55 @@ app's CI fires it only after *its own* build succeeds, carrying that
 precise SHA, so the regression suite never tests a later or unrelated
 revision than the one that actually triggered it.
 
-## Development and QA Approach
+## AI-Assisted Development and QA
 
-Built with AI assistance (Claude Code) accelerating implementation,
-scaffolding, and investigation legwork.
+The project uses both **Claude Code and ChatGPT** as part of an AI-assisted
+QA engineering workflow. The tester remains responsible for orchestrating that
+workflow: defining the testing problem, determining what capability is needed,
+directing implementation and analysis, evaluating proposed approaches,
+reviewing results, and deciding what should be accepted, rejected, or
+investigated further.
 
-The developer owned requirements and acceptance criteria, exploratory
-testing, and final validation throughout. Architecture decisions were
-reviewed and approved case by case — for example, REST Assured over
-Playwright's own API client, and an opt-in H2 TCP listener over switching
-to file-based storage or a real Oracle instance. Code review, and
-directing the CI race investigation above to root cause before
-authorizing a fix, were handled the same way.
+Claude Code is used extensively for repository-level implementation,
+scaffolding, debugging, and iterative code changes. ChatGPT is used extensively
+for QA strategy, requirements and test analysis, architecture and design
+review, investigation, technical learning, and evaluation of implementation
+approaches. The roles overlap where useful; neither tool independently owns the
+engineering process.
+
+The workflow is intentionally iterative:
+
+```mermaid
+flowchart LR
+    Need["Testing Need"] --> Direction["Tester Direction"]
+    Direction --> AI["AI-Assisted<br/>Implementation / Analysis"]
+    AI --> Execution["Execution"]
+    Execution --> Evaluation["Tester Evaluation"]
+    Evaluation -->|accepted| Knowledge["Validated Capability / Knowledge"]
+    Evaluation -->|needs investigation| Investigation["Investigation / Iteration"]
+    Investigation --> Direction
+```
+
+Generated code is reviewed and executed against the application. Proposed
+approaches are evaluated against the testing problem. Failures are investigated
+rather than changed merely to make a test green.
+
+The tester retains ownership of requirements and acceptance criteria,
+exploratory testing, testing strategy, architecture decisions, and final
+validation. Examples include selecting REST Assured rather than Playwright's
+API client, choosing an opt-in H2 TCP listener rather than changing the
+application's normal persistence model, and directing the CI failure
+investigation toward root cause before authorizing a correction.
+
+The distinction is important:
+
+> **AI increases implementation and analytical capacity. The tester
+> orchestrates that capacity and retains ownership of quality decisions.**
+
+This POC therefore explores more than AI-assisted coding. It demonstrates how
+an experienced tester can coordinate AI tools with complementary strengths to
+build, evaluate, and extend a broader QA capability while keeping the testing
+problem, architectural intent, and acceptance of evidence under human control.
 
 ## Application under test
 
@@ -155,11 +276,29 @@ SQL layer `-Ddb.url=` / `-Ddb.user=` / `-Ddb.password=` (default the
 sql-verify TCP listener: `jdbc:h2:tcp://localhost:9092/mem:trackerdb`,
 `sa`, empty).
 
+## Guiding principles
+
+- Test externally observable behavior rather than coupling tests to application implementation.
+- Use the least expensive testing layer that provides sufficient confidence.
+- Keep test intent separate from automation mechanics.
+- Trace meaningful regression coverage to defined expected behavior.
+- Verify persisted state directly when UI or API evidence alone is insufficient.
+- Use automation for repeatable checks while retaining manual and exploratory testing.
+- Treat unexpected failures as information to investigate rather than obstacles to make green.
+- Use AI to increase implementation capacity without transferring responsibility for quality decisions to AI.
+- Minimize unnecessary exposure of application implementation and sensitive information.
+- Grow useful coverage incrementally rather than optimizing for test count.
+
 ## Scope
 
 See workflow-tracker's
 [`product-stories.md`](https://github.com/frankfulcomer/workflow-tracker/blob/main/docs/product-stories.md)
 for the acceptance criteria this suite is built against, what's
 explicitly out of scope, and the Future Backlog of deliberately deferred
-items — including the two findings above that were logged rather than
-fixed.
+items — including findings that were logged rather than silently fixed.
+
+Workflow Tracker is a POC and learning environment rather than a production
+application. The objective is not simply a collection of automated tests, but
+the beginnings of a maintainable QA capability built around requirements,
+manual testing, automation, evidence, investigation, and continuous
+improvement.
