@@ -67,13 +67,29 @@ than bypassing application behavior to manufacture test conditions.
 
 ### Manual Test Suites
 
-Manual test workbooks are available in [`docs/manual-tests/`](docs/manual-tests/).
-They mirror the UI, API, and SQL automated suites and include execution steps,
-expected and actual results, and requirement traceability.
+A lean, scripted manual UI suite lives in
+[`docs/manual-tests/workflow_tracker_manual_ui_tests.xlsx`](docs/manual-tests/) -
+six workflow-level cases (create, status happy path, status transition
+rules, edit/save, reopen + history, and detail layout/usability) with
+execution steps, expected and actual results, and requirement traceability.
 
-Automation handles repeatable checks; manual and exploratory testing remain
-important for discovering unexpected behavior, questioning assumptions, and
-deciding what deserves regression coverage.
+This suite was deliberately kept lean rather than mirroring every
+automated test 1:1. Manual regression is reserved for important end-to-end
+user workflows and for behavior that needs human observation - visual
+layout, usability judgment, workflow coherence, or a deliberate second,
+independent check on the app's most important flows. Deterministic,
+repetitive checks (API contracts, database persistence/integrity, exact
+values and timestamps, exhaustive transition combinations) are automation's
+job, not manual regression's - the API and SQL manual suites that used to
+mirror those layers 1:1 have been retired for exactly that reason. Open-
+ended investigation that doesn't benefit from a fixed script - search/filter
+edge cases, malformed input, concurrency probing, and similar - lives in
+[`docs/manual-tests/exploratory-testing-charter.md`](docs/manual-tests/exploratory-testing-charter.md)
+instead of a scripted case.
+
+Full reasoning for what stayed scripted, what merged into a broader
+workflow, and what moved to the exploratory charter is in
+[`docs/traceability.md`](docs/traceability.md).
 
 For the reasoning behind these design choices, see
 [`docs/architecture.md`](docs/architecture.md).
@@ -283,7 +299,7 @@ sql-verify TCP listener: `jdbc:h2:tcp://localhost:9092/mem:trackerdb`,
 - Keep test intent separate from automation mechanics.
 - Trace meaningful regression coverage to defined expected behavior.
 - Verify persisted state directly when UI or API evidence alone is insufficient.
-- Use automation for repeatable checks while retaining manual and exploratory testing.
+- Automate deterministic, repetitive checks; keep manual testing where human observation, usability judgment, or workflow coherence adds value; preserve exploratory testing for open-ended investigation.
 - Treat unexpected failures as information to investigate rather than obstacles to make green.
 - Use AI to increase implementation capacity without transferring responsibility for quality decisions to AI.
 - Minimize unnecessary exposure of application implementation and sensitive information.

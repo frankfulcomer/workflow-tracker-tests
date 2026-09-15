@@ -179,9 +179,16 @@ verification.
 
 The presence of automation does not eliminate manual testing.
 
-Manually executable UI, API, and SQL tests provide repeatable procedures while
-leaving room for observations that predefined automated assertions may not
-capture.
+Manual testing is deliberately scoped by risk and value rather than applied
+uniformly to every acceptance criterion. A lean set of scripted UI cases
+covers important end-to-end user workflows and behavior that benefits from
+human observation - visual layout, usability judgment, workflow coherence,
+or an intentional second, independent check alongside automation. The API
+and SQL layers, which have no visual or usability dimension and are fully
+covered by deterministic automated checks, are automated-only; a scripted
+manual test repeating an HTTP contract or a database row assertion adds
+little that automation doesn't already provide more reliably and
+repeatably.
 
 Exploratory testing serves a different purpose. It asks questions such as:
 
