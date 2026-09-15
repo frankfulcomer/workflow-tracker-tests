@@ -113,7 +113,11 @@ class StatusWorkflowTest extends BaseUiTest {
         tracker.createItem(title, null, "Should keep full status history after CLOSED -> OPEN");
 
         tracker.setStatusForRow(title, "IN_PROGRESS");
+        assertThat(tracker.statusBadge(title)).hasText("IN PROGRESS");
+
         tracker.setStatusForRow(title, "RESOLVED");
+        assertThat(tracker.statusBadge(title)).hasText("RESOLVED");
+
         tracker.setStatusForRow(title, "CLOSED");
         assertThat(tracker.statusBadge(title)).hasText("CLOSED");
 

@@ -46,12 +46,12 @@ decisions.
 flowchart LR
     UI["UI Layer<br/>Playwright + Page Object<br/>18 tests"] -->|drives via browser| App[("workflow-tracker<br/>running instance")]
     API["API Layer<br/>REST Assured<br/>6 tests"] -->|HTTP requests| App
-    SQL["SQL Layer<br/>JDBC, read-only<br/>5 tests"] -->|creates/transitions via| API
+    SQL["SQL Layer<br/>JDBC, read-only<br/>6 tests"] -->|creates/transitions via| API
     SQL -->|verifies persisted state directly| DB[("H2 database<br/>sql-verify TCP listener")]
     App --- DB
 ```
 
-18 UI + 6 API + 5 SQL = 29 tests total, each traceable to one or more
+18 UI + 6 API + 6 SQL = 30 tests total, each traceable to one or more
 documented acceptance criteria — a **deliberately selected regression
 suite, not an attempt at comprehensive application coverage**. Full
 mapping in [`docs/traceability.md`](docs/traceability.md).
@@ -156,7 +156,7 @@ sequenceDiagram
     Tests->>Tests: checkout workflow-tracker-tests@main
     Tests->>Tests: checkout workflow-tracker@exact SHA
     Tests->>Tests: build and start app (sql-verify profile)
-    Tests->>Tests: run 29 tests (UI, API, SQL)
+    Tests->>Tests: run 30 tests (UI, API, SQL)
     Tests-->>App: Surefire report (artifact)
 ```
 
@@ -242,7 +242,7 @@ src/test/java/com/example/tracker/automation/
       WorkItemCreationApiTest.java     # creation contract incl. negative paths (3)
       StatusTransitionApiTest.java     # valid/invalid/no-op transitions (3)
     sql/
-      WorkItemPersistenceSqlTest.java  # persisted values, initial history row, owner FK (3)
+      WorkItemPersistenceSqlTest.java  # persisted values, initial history row, owner FK, updatedDate advances on edit (4)
       StatusTransitionSqlTest.java     # persisted transition outcomes (2)
 ```
 

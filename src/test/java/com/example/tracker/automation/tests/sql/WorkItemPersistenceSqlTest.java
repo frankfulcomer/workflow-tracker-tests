@@ -6,10 +6,12 @@ import io.restassured.response.Response;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class WorkItemPersistenceSqlTest extends BaseSqlTest {
 
@@ -65,6 +67,27 @@ class WorkItemPersistenceSqlTest extends BaseSqlTest {
 
         // WF-001 AC-2/AC-9: no assigned owner means no stored owner relationship (NULL FK).
         assertNull(sql.findWorkItem(unassignedId).ownerId());
+    }
+
+    @Test
+    void editingAWorkItemAdvancesItsPersistedUpdatedDate() throws Exception {
+        long id = createItem("SQL test - updated timestamp advances " + UUID.randomUUID(), validOwnerId,
+                "Verifying updatedDate advances on edit via direct SQL");
+
+        LocalDateTime updatedDateBeforeEdit = sql.updatedDate(id);
+
+        String newTitle = "SQL test - updated timestamp advances (edited) " + UUID.randomUUID();
+        api.update(id, newTitle, validOwnerId, "Edited description")
+                .then().statusCode(200);
+
+        // WF-001 AC-8 / WF-004 AC-3: editing a work item advances its persisted
+        // updatedDate. Verified here at full column precision rather than in
+        // the UI, since the UI's displayed timestamp only has second-level
+        // precision and create+edit can land in the same displayed second.
+        LocalDateTime updatedDateAfterEdit = sql.updatedDate(id);
+        assertTrue(updatedDateAfterEdit.isAfter(updatedDateBeforeEdit),
+                "updatedDate should advance after an edit: before=" + updatedDateBeforeEdit
+                        + ", after=" + updatedDateAfterEdit);
     }
 
     private long createItem(String title, Long ownerId, String description) {

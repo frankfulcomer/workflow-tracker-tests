@@ -27,7 +27,6 @@ class WorkItemDetailTest extends BaseUiTest {
         // WF-004 AC-4 / WF-005 AC-7: only the initial creation history row exists
         // before any edit is made.
         assertThat(tracker.historyRows()).hasCount(1);
-        String originalUpdatedTimestamp = tracker.detailUpdated().innerText();
 
         String newTitle = "Automated test - edit after " + UUID.randomUUID();
         String newDescription = "Updated description " + UUID.randomUUID();
@@ -55,9 +54,12 @@ class WorkItemDetailTest extends BaseUiTest {
         assertThat(tracker.detailOwnerSelected()).hasText("FirstName2 LastName2");
         assertThat(tracker.detailDescriptionInput()).hasValue(newDescription);
 
-        // WF-001 AC-8 / WF-004 AC-3: saving a changed title/owner/description
-        // updates the modification timestamp - not just leaves it non-blank.
-        assertThat(tracker.detailUpdated()).not().hasText(originalUpdatedTimestamp);
+        // WF-001 AC-8 / WF-004 AC-3: the Updated field is populated after a save.
+        // Actual timestamp *advancement* is verified at the SQL layer
+        // (WorkItemPersistenceSqlTest.editingAWorkItemAdvancesItsPersistedUpdatedDate),
+        // since the UI only displays second-level precision (toLocaleString())
+        // and a fast create-then-edit can land within the same displayed second.
+        assertThat(tracker.detailUpdated()).hasText(Pattern.compile(".+"));
 
         // WF-004 AC-4 / WF-005 AC-7: editing title/owner/description does not
         // add a status-history record - still just the initial creation row.

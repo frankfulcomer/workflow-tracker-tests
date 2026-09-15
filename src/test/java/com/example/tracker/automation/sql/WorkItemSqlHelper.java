@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -42,6 +43,20 @@ public class WorkItemSqlHelper {
                         rs.getString("status"),
                         rs.getObject("owner_id", Long.class),
                         rs.getString("owner_name"));
+            }
+        }
+    }
+
+    /** The item's persisted last-modified timestamp, at full column precision. */
+    public LocalDateTime updatedDate(long workItemId) throws SQLException {
+        String query = "SELECT updated_date FROM work_items WHERE id = ?";
+        try (PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setLong(1, workItemId);
+            try (ResultSet rs = statement.executeQuery()) {
+                if (!rs.next()) {
+                    throw new IllegalStateException("No work item with id " + workItemId);
+                }
+                return rs.getTimestamp("updated_date").toLocalDateTime();
             }
         }
     }

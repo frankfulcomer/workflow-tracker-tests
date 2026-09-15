@@ -392,3 +392,10 @@ The objective is not to build the largest possible framework.
 
 It is to build a QA system whose components have clear reasons for existing
 and whose results can be understood, investigated, and trusted.
+
+One known limitation: the UI suite has no per-test or per-class cleanup of
+work items it creates, so the shared application database grows for the
+life of a test run. This does not currently produce incorrect results, but
+it degrades list-rendering performance over a long run and is worth
+addressing - for example, with test-created-data cleanup or a reset between
+runs - as the suite grows.

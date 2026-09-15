@@ -57,7 +57,7 @@ corresponding workbook under `docs/manual-tests/`.
 | AC-5 | Owner can be changed after creation | WID.editsAndSavesWorkItemDetails() | UI-009 | Covered |
 | AC-6 | Owner can be changed from assigned to unassigned | WID.changesOwnerFromAssignedToUnassigned() | UI-014 | Covered |
 | AC-7 | Creation records a creation timestamp | WCA.createsItemWithSuppliedValuesNewStatusAndInitialHistoryEntry() (asserts `createdDate` is non-null on both the POST response and the follow-up GET) | API-001 (asserts the timestamp is present/nonblank, consistent with creation time, and still present on GET) | Covered |
-| AC-8 | Modification records an updated timestamp | WID.editsAndSavesWorkItemDetails() (captures the Updated value before editing and asserts it *differs* after the save, not merely non-blank) | UI-009 (step 7 compares before/after) | Covered |
+| AC-8 | Modification records an updated timestamp | WPS.editingAWorkItemAdvancesItsPersistedUpdatedDate() (asserts the persisted `updated_date` is strictly later after an edit); WID.editsAndSavesWorkItemDetails() (asserts the Updated value is present after save - the UI only renders second-level precision, so timestamp *advancement* is verified at the SQL layer, not the UI) | UI-009 (step 7 compares before/after) | Covered |
 | AC-9 | No owner ⇒ no stored owner relationship (NULL FK) | WPS.ownerAssignmentAndUnassignedAreRepresentedCorrectly() | SQL-003 | Covered |
 
 ## WF-002 — Manage Work-Item Status
@@ -98,7 +98,7 @@ corresponding workbook under `docs/manual-tests/`.
 |---|---|---|---|---|
 | AC-1 | Description displayed on the detail view | WID.editsAndSavesWorkItemDetails() | UI-009 | Covered |
 | AC-2 | Description editable after creation | WID.editsAndSavesWorkItemDetails() | UI-009 | Covered |
-| AC-3 | Saving a changed description updates the modification timestamp | WID.editsAndSavesWorkItemDetails() (captures the timestamp before editing, asserts it changed after save) | UI-009 (step 7 compares before/after) | Covered |
+| AC-3 | Saving a changed description updates the modification timestamp | WPS.editingAWorkItemAdvancesItsPersistedUpdatedDate() (asserts the persisted `updated_date` is strictly later after an edit); WID.editsAndSavesWorkItemDetails() (asserts the Updated value is present after save) | UI-009 (step 7 compares before/after) | Covered |
 | AC-4 | Changing the description creates no history record | WID.editsAndSavesWorkItemDetails() (asserts `historyRows()` count is unchanged - still 1 - before and after the title/owner/description edit+save) | *(none)* | Covered |
 
 ## WF-005 — Save Work-Item Changes

@@ -45,6 +45,17 @@ public class WorkItemApiClient {
         return given().baseUri(baseUrl).get("/api/items/{id}", id);
     }
 
+    public Response update(long id, String title, Long ownerId, String description) {
+        Map<String, Object> body = new HashMap<>();
+        body.put("title", title);
+        body.put("ownerId", ownerId);
+        body.put("description", description);
+        return given().baseUri(baseUrl)
+                .contentType("application/json")
+                .body(body)
+                .put("/api/items/{id}", id);
+    }
+
     public Response patchStatus(long id, String status) {
         return given().baseUri(baseUrl)
                 .contentType("application/json")
