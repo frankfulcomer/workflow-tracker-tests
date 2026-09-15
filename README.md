@@ -285,12 +285,22 @@ started with `-Dspring-boot.run.profiles=sql-verify`.
 mvn exec:java -e -Dexec.mainClass="com.microsoft.playwright.CLI" -Dexec.args="install --with-deps chromium"
 
 mvn test
+
+# Run UI tests with a visible browser window instead of headless (PowerShell)
+mvn test -Dheaded=true
+
+# Headed demo run, slowed down 500ms per Playwright action (PowerShell)
+mvn test "-Dheaded=true" "-DslowMo=500"
 ```
 
-Overrides: `-Dbase.url=` (default `http://localhost:8080`), and for the
-SQL layer `-Ddb.url=` / `-Ddb.user=` / `-Ddb.password=` (default the
-sql-verify TCP listener: `jdbc:h2:tcp://localhost:9092/mem:trackerdb`,
-`sa`, empty).
+Overrides: `-Dbase.url=` (default `http://localhost:8080`), `-Dheaded=`
+(default `false`, runs browsers headless; when `true`, Chromium also
+launches maximized to make the best use of screen space during
+demonstrations), `-DslowMo=` (milliseconds, default `0`, slows down
+Playwright actions for headed/demo runs and works independently of
+`-Dheaded`), and for the SQL layer `-Ddb.url=` /
+`-Ddb.user=` / `-Ddb.password=` (default the sql-verify TCP listener:
+`jdbc:h2:tcp://localhost:9092/mem:trackerdb`, `sa`, empty).
 
 ## Guiding principles
 

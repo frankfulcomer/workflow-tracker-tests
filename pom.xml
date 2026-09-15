@@ -23,6 +23,10 @@
         <h2.version>2.2.224</h2.version>
         <!-- Overridable via -Dbase.url=... ; this is the default when not set -->
         <base.url>http://localhost:8080</base.url>
+        <!-- Overridable via -Dheaded=true to run browsers with a visible UI; defaults to headless -->
+        <headed>false</headed>
+        <!-- Overridable via -DslowMo=<ms> to slow down Playwright actions for headed/demo runs; defaults to no delay -->
+        <slowMo>0</slowMo>
     </properties>
 
     <dependencies>
@@ -63,6 +67,8 @@
                 <configuration>
                     <systemPropertyVariables>
                         <base.url>${base.url}</base.url>
+                        <headed>${headed}</headed>
+                        <slowMo>${slowMo}</slowMo>
                     </systemPropertyVariables>
                 </configuration>
             </plugin>

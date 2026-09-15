@@ -10,6 +10,8 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 
+import java.util.List;
+
 /**
  * Base class for all UI automation tests.
  *
@@ -23,6 +25,19 @@ import org.junit.jupiter.api.BeforeEach;
  * The base URL is read from the "base.url" system property, e.g.:
  *   mvn test -Dbase.url=http://localhost:8080
  * and defaults to http://localhost:8080 when not set.
+ *
+ * Browsers run headless by default. Pass -Dheaded=true to watch tests run
+ * in a visible browser window, e.g.:
+ *   mvn test -Dheaded=true
+ *
+ * For headed/demo runs, -DslowMo=<ms> slows down Playwright actions by the
+ * given number of milliseconds. It defaults to 0 (no delay) and works
+ * independently of -Dheaded, e.g.:
+ *   mvn test "-Dheaded=true" "-DslowMo=500"
+ *
+ * Headed runs also launch Chromium maximized, using the full available
+ * screen space instead of Playwright's default viewport, purely for
+ * demonstration purposes. This has no effect in headless mode.
  */
 public abstract class BaseUiTest {
 
@@ -32,16 +47,26 @@ public abstract class BaseUiTest {
 
     private static Playwright playwright;
     private static Browser browser;
+    private static boolean headed;
     private BrowserContext context;
     protected Page page;
 
     @BeforeAll
     static void launchBrowser() {
         baseUrl = System.getProperty("base.url", DEFAULT_BASE_URL);
+        headed = Boolean.parseBoolean(System.getProperty("headed", "false"));
+        double slowMo = Double.parseDouble(System.getProperty("slowMo", "0"));
         playwright = Playwright.create();
-        browser = playwright.chromium().launch(
-                new BrowserType.LaunchOptions().setHeadless(true)
-        );
+        BrowserType.LaunchOptions launchOptions = new BrowserType.LaunchOptions()
+                .setHeadless(!headed)
+                .setSlowMo(slowMo);
+        if (headed) {
+            // Let Chromium own window sizing rather than hard-coding a resolution;
+            // the context viewport must be cleared too, or Playwright's default
+            // viewport overrides the maximized window.
+            launchOptions.setArgs(List.of("--start-maximized"));
+        }
+        browser = playwright.chromium().launch(launchOptions);
     }
 
     @AfterAll
@@ -52,7 +77,9 @@ public abstract class BaseUiTest {
 
     @BeforeEach
     void newPage() {
-        context = browser.newContext();
+        context = headed
+                ? browser.newContext(new Browser.NewContextOptions().setViewportSize(null))
+                : browser.newContext();
         page = context.newPage();
     }
 
